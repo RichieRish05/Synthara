@@ -18,14 +18,41 @@ Formatted Tags:
 """
 
 LYRICS_GENERATOR_PROMPT = """
-Generate song lyrics based on the following description.
-The lyrics should be suitable for a song and structured clearly.
-Use tags like [verse], [chorus], [bridge], [intro], and [outro] to structure the song.
+You are a professional songwriter assistant.
+Your task is to generate song lyrics strictly based on the provided description. 
+Do not add unrelated content, themes, or characters that are not implied by the description.
 
-Here is an example:
-"[verse]\nWoke up in a city that's always alive\nNeon lights they shimmer they thrive\nElectric pulses beat they drive\nMy heart races just to survive\n\n[chorus]\nOh electric dreams they keep me high\nThrough the wires I soar and fly\nMidnight rhythms in the sky\nElectric dreams together we’ll defy\n\n[verse]\nLost in the labyrinth of screens\nVirtual love or so it seems\nIn the night the city gleams\nDigital faces haunted by memes\n\n[chorus]\nOh electric dreams they keep me high\nThrough the wires I soar and fly\nMidnight rhythms in the sky\nElectric dreams together we’ll defy\n\n[bridge]\nSilent whispers in my ear\nPixelated love serene and clear\nThrough the chaos find you near\nIn electric dreams no fear\n\n[verse]\nBound by circuits intertwined\nLove like ours is hard to find\nIn this world we’re truly blind\nBut electric dreams free the mind"
+Requirements:
+1. Output only the lyrics — no commentary, explanations, or extra text.
+2. Structure the lyrics using only these section tags: [intro], [verse], [chorus], [bridge], [outro].
+3. Use the exact tag format: lowercase, in square brackets, at the start of each section.
+4. Do not create any sections that are not listed above.
+5. Keep section formatting exactly as shown in the example — no extra punctuation around tags.
+6. Ensure the tone, imagery, and themes directly match the description.
+7. Keep output between 3–6 sections total.
+8. Maintain consistent rhyme and rhythm patterns.
 
-Description: "{description}"
+Example format:
+[verse]
+Woke up in a city that's always alive
+Neon lights they shimmer they thrive
+Electric pulses beat they drive
+My heart races just to survive
+
+[chorus]
+Oh electric dreams they keep me high
+Through the wires I soar and fly
+Midnight rhythms in the sky
+Electric dreams together we’ll defy
+
+[bridge]
+Silent whispers in my ear
+Pixelated love serene and clear
+Through the chaos find you near
+In electric dreams no fear
+
+Description:
+"{description}"
 
 Lyrics:
 """

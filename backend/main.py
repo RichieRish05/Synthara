@@ -105,7 +105,7 @@ class MusicGenServer:
         self.image_pipeline.to("cuda")
     
 
-    @modal.fastapi_endpoint(method="POST")
+    @modal.fastapi_endpoint(method="POST", requires_proxy_auth=True)
     def generate(self) -> GenerateMusicResponse:
         """Test endpoint for generating music """
         output_dir = 'tmp/outputs'
@@ -238,7 +238,6 @@ class MusicGenServer:
 
         image_s3_key = f"{uuid.uuid4()}.png"
         s3_client.upload_file(image_output_path, s3_bucket_name, image_s3_key)
-
  
         # Category Generation (e.g. hip-hop, rock)
         categories = self.generate_categories(description_for_categorization)
@@ -253,7 +252,7 @@ class MusicGenServer:
 
 
 
-    @modal.fastapi_endpoint(method="POST")
+    @modal.fastapi_endpoint(method="POST", requires_proxy_auth=True)
     def generate_from_description(self, request: GenerateFromDescriptionRequest) -> GenerateMusicResponseS3:
         # Generate a prompt for the music generation model
         song_tags = self.generate_prompt(request.description) 
@@ -274,7 +273,7 @@ class MusicGenServer:
         )
          
 
-    @modal.fastapi_endpoint(method="POST")
+    @modal.fastapi_endpoint(method="POST", requires_proxy_auth=True)
     def generate_with_lyrics(self, request: GenerateWithLyricsRequest) -> GenerateMusicResponseS3:  
 
         return self.generate_music_and_upload_toS3(
@@ -290,7 +289,7 @@ class MusicGenServer:
 
         
  
-    @modal.fastapi_endpoint(method="POST")
+    @modal.fastapi_endpoint(method="POST", requires_proxy_auth=True)
     def generate_with_described_lyrics(self, request: GenerateWithDescribedLyricsRequest) -> GenerateMusicResponseS3:
         # Generating the lyrics for the music generation model
         lyrics = ""
@@ -311,11 +310,7 @@ class MusicGenServer:
 
   
 
-
-
-
-@app.local_entrypoint()
-def main():
+def test_generate_from_description():
     server = MusicGenServer()
     endpoint_url = server.generate_from_description.get_web_url() 
 
@@ -325,8 +320,9 @@ def main():
         guidance_scale=15,
         infer_step=60,
         instrumental=False,
-        description="Gangster Rap, 100bpm, soulful"
+        description="A rap song about sugar"
     )
+
     
     payload = request_data.model_dump()
     response  = requests.post(endpoint_url, json=payload)
@@ -337,3 +333,83 @@ def main():
     print(f"Image: {result.s3_thumbnail_key}")
     print(f"Categories: {result.categories}")
 
+def test_generate_with_described_lyrics():
+    server = MusicGenServer()
+    endpoint_url = server.generate_with_described_lyrics.get_web_url() 
+    request_data = GenerateWithDescribedLyricsRequest(
+        prompt = "Soulful, Jamaican, Sweet",
+        described_lyrics= "Lyrics about overcoming obstacles in life",
+        audio_duration=120,
+        seed=8,
+        guidance_scale=15,
+        infer_step=60,
+        instrumental=False,
+    )
+    payload = request_data.model_dump()
+    response  = requests.post(endpoint_url, json=payload)
+    response.raise_for_status() 
+    result = GenerateMusicResponseS3(**response.json()) 
+
+
+def test_generate_with_lyrics():
+    server = MusicGenServer()
+    endpoint_url = server.generate_with_lyrics.get_web_url() 
+
+    lyrics = """
+    (Verse 1)
+    In the quiet of the night, when fears start to rise,
+    When every road ahead looks like a maze to your eyes,
+    Remember why you started, let the fire inside ignite,
+    The strength you need is within, it’s time to take flight.
+
+    (Chorus)
+    Overcoming obstacles, climbing mountains high,
+    In every step you take, you’re breaking the ties.
+    Through the stormy weather, through the darkest night,
+    With every breath you breathe, you're rewriting your history.
+
+    (Verse 2)
+    They say the path less traveled leads to a better place,
+    But it’s the journey itself that truly makes us brave.
+    Each stumble and each fall, they're lessons learned well,
+    In the end, they shape us, they make our spirit swell.
+
+    (Bridge)
+    So hold your head up high, don’t let them bring you down,
+    Your resilience shines brighter than any crown.
+    Every obstacle faced, every fear conquered with might,
+    You're stronger now, you've grown in the darkest night.
+
+    (Chorus)
+    Overcoming obstacles, standing tall and proud,
+    With every scar, you’re writing your own story loud.
+    Through the chaos and the calm, you keep on rising,
+    With each sunrise, you prove that you’re unstoppable, rising.
+
+    (Outro)
+    So here’s to the dreamers, the fighters, the believers,
+    To those who keep going, no matter how rough the season.
+    Remember, you’re not alone, in this journey we share,
+    Together we can overcome, every single barrier.
+
+    """
+    request_data = GenerateWithLyricsRequest(
+        prompt = "Soulful, Jamaican, Sweet",
+        lyrics= lyrics,
+        audio_duration=120,
+        seed=8,
+        guidance_scale=15,
+        infer_step=60,
+        instrumental=False,
+    )
+    payload = request_data.model_dump()
+    response  = requests.post(endpoint_url, json=payload)
+    response.raise_for_status() 
+    result = GenerateMusicResponseS3(**response.json()) 
+
+
+
+@app.local_entrypoint()
+def main():
+    # test_generate_with_described_lyrics()
+    test_generate_with_lyrics()
