@@ -37,7 +37,7 @@ class GenerateMusicResponse(BaseModel):
 class AudioGenerationRequest(BaseModel):
     audio_duration: float = 120.0
     seed: int = -1
-    guidance_scale: float = 15.0
+    guidance_scale: float = 15.0 
     infer_step: int = 60 
     instrumental: bool = False
 
