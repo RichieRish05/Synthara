@@ -100,7 +100,8 @@ class MusicGenServer:
         self.image_pipeline = AutoPipelineForText2Image.from_pretrained(
             "stabilityai/sdxl-turbo", 
             torch_dtype=torch.float16, 
-            variant="fp16"
+            variant="fp16",
+            cache_dir="/.cache/huggingface"
         )
         self.image_pipeline.to("cuda")
     
