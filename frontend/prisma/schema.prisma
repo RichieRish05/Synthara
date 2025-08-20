@@ -21,10 +21,60 @@ model User {
   updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
+  credits       Int      @default(100)
+  likes         Like[]  // Many to many relationship between users and songs liked (requires a join table)
+  songs         Song[]  // One to many relationship between users and songs
 
   @@unique([email])
   @@map("user")
 }
+
+model Song {
+  id                String    @id @default(cuid())
+  title             String
+  s3Key             String?
+  thumbnails3Key    String?
+  status            String    @default("queued")
+  instrumental      Boolean   @default(false)
+  prompt            String?
+  lyrics            String?
+  fullDescribedSong String?
+  describedLyrics   String?
+  guidanceScale     Float?
+  inferStep         Float?
+  audioDuration     Float?    
+  published         Boolean   @default(false)
+  listenCount       Int  @default(0)
+  likes             Like[]                            // Many to many relationship between users and songs (requires a join table)
+  categories        Category[]                        // Many to many relationship between users and songs (requires a join table)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)  // One to many relationship, if user is deleted song is deleted
+  userId String
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+
+  @@index([s3Key])                                                            // Quick lookup of s3 keys with extra storage cost
+}
+
+model Like {  // Join table
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade) // delete like if user is deleted
+  userId String
+  song Song @relation(fields: [songId], references: [id], onDelete: Cascade) // delete like if song is deleted
+  songId String
+
+  @@id([userId, songId])
+}
+
+model Category { // Join table many to many relationship (one category can have many songs and one song can have many categories)
+  id                String    @id @default(cuid())
+  name              String    @unique
+  songs             Song[]
+
+
+}
+ 
 
 model Session {
   id        String   @id
