@@ -45,6 +45,7 @@ model Song {
   audioDuration     Float?    
   published         Boolean   @default(false)
   listenCount       Int  @default(0)
+  seed              Int  @default(42)
   likes             Like[]                            // Many to many relationship between users and songs (requires a join table)
   categories        Category[]                        // Many to many relationship between users and songs (requires a join table)
 
