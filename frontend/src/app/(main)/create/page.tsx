@@ -3,8 +3,9 @@ import { auth } from "~/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import CreateSong from "~/components/createSong";
+import SongPanel from "~/components/create/song-panel";
  
-export default async function HomePage() {
+export default async function CreatePage() {
 
   try {
     // Prevent unauthenticated users from accessing dashboard
@@ -21,9 +22,10 @@ export default async function HomePage() {
 
   
   return ( 
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-     <p>Dashboard</p>
-     <CreateSong />
-    </main>
+    <div className="flex h-full flex-col lg:flex-row  ">
+      <SongPanel/>
+
+    </div>
   );
 }
+ 
