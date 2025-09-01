@@ -138,7 +138,7 @@ export const generateSong = inngest.createFunction(
           where: { id: songId },
           data: {
             s3Key: data?.s3_key,
-            thumbnails3Key: data?.cover_image_s3_key,
+            thumbnails3Key: data?.s3_thumbnail_key,
             status: res.ok ? "processed" : "failed"
           }
         });
