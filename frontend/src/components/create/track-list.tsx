@@ -1,0 +1,138 @@
+"use client"
+import { RefreshCcw, Search, XCircle } from "lucide-react"
+import TrackListFetcher from "./track-list-fetcher"
+import { Input } from "../ui/input"
+import { useState   } from "react"
+import { Button  } from "../ui/button"
+import { Loader2, Music} from "lucide-react"
+
+export interface Track {
+    id: string, 
+    title: string,
+    createdAt: Date,
+    thumbnailURL: string,
+    playURL: string | null, 
+    status: "processing" | "processed" | "failed" | "queued",
+    createdByUserName: string
+    published: boolean
+    songTags: string
+} 
+
+export default function TrackList({tracks} : {tracks: Track[]} ) {
+    const [searchQuery, setSearchQuery] = useState<string>("")
+    const [refreshing, isRefreshing] = useState<boolean>(false)
+
+    const handleRefresh = (e: React.MouseEvent) => {
+        return 
+    }
+    let filteredTracks = tracks
+    console.log('All tracks:', tracks)
+    console.log('Track thumbnails:', tracks.map(track => ({ title: track.title, thumbnailURL: track.thumbnailURL })))
+
+    if (searchQuery.trim()){
+        filteredTracks = tracks.filter((track) => track.title.toLowerCase().includes(searchQuery.toLowerCase()))
+    }
+    console.log('Filtered tracks:', filteredTracks)
+
+    return (
+        <div className="flex flex-1 flex-col overflow-y-scroll">
+            <div className="flex-1 p-6">
+                <div className="mb-4 flex items-center justify-between gap-4">
+                    <div className="relative max-w-md flex-1">
+                        <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"/>   
+                        <Input 
+                            placeholder="Search..." 
+                            className="pl-10"
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            value={searchQuery}
+                        /> 
+                    </div>
+                    <Button
+                        variant="outline"
+                        disabled={refreshing}
+                        size="sm"
+                        onClick={handleRefresh}
+                    >
+                        {refreshing ? (
+                            <Loader2 className="mr-2 animate-spin"/>
+                             
+                        ) : (
+                            <RefreshCcw className="mr-2"/> 
+                        )}
+                        Refresh
+                    </Button>
+                </div>
+
+            {/* Track List */}
+            <div className="space-y-2 h-full">
+                 {filteredTracks.length > 0 ? 
+                    (
+                    filteredTracks.map(track => {
+                        switch(track.status){
+                            case "failed": 
+                            return (
+                            <div key={track.id} className="flex cursor-not-allowed items-center gap-4 rounded-lg p-3">
+                                <div className="bg-destructive/10 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-md">
+                                      <XCircle className="text-destructive h-6 w-6"/>
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <h3 className="text-destructive truncate text-sm font-md">Generation Failed</h3>
+                                    <p className="text-muted-foreground text-xs truncate">Please try to generate once more</p>
+                                </div>   
+                            </div>) 
+
+                            case "queued": 
+                            case "processing":
+                            return (
+                            <div key={track.id} className="flex cursor-not-allowed items-center justify-between gap-4 rounded-lg p-3">
+                                <div className="bg-muted/10 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-md">
+                                      <Loader2 className="text-muted-foreground animate-spin h-6 w-6"/>
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <h3 className="text-muted-foreground truncate text-sm font-md">{track.title}</h3>
+                                    <p className="text-muted-foreground text-xs truncate">Refresh to Check Status</p>
+                                </div>   
+                            </div>)
+
+                            default: 
+                            return (
+                            <div key={track.id} 
+                            className="hover:bg-muted-50 flex cursor-pointer items-center gap-4 rounded-lg p-3 transition-colors"
+                            onClick={() => {}}
+                            >
+                                <div className="group relative h-12 w-12 rounded-md overflow-hidden flex-shrink-0">
+                                    {track.thumbnailURL ? 
+                                    <img 
+                                        src={track.thumbnailURL} 
+                                        alt={`${track.title} thumbnail`}
+                                        className="h-full w-full object-cover"
+                                    /> : 
+                                    <div className="bg-muted flex h-full w-full rounded-md items-center justify-center">
+                                        <Music className="text-muted-foreground h-6 w-6"/>
+                                    </div>}
+                                </div>
+
+                                <div className="min-w-0 flex-1">
+                                    <h3 className="text-muted-foreground truncate text-sm font-md">{track.title}</h3>
+                                    <p className="text-muted-foreground text-xs truncate">{track.createdByUserName}</p>
+                                </div>   
+
+
+                            </div>)
+                        }  
+                    })  
+                    ) : (
+                    <div className="flex h-full flex-col gap-3 items-center justify-center">
+                        <div>No Tracks Found</div>
+                    </div>
+                    )
+                 }
+
+            </div>
+            </div> 
+
+        </div>
+    )
+     
+
+}    

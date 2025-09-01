@@ -6,6 +6,8 @@ import { auth } from "~/lib/auth";
 import { headers } from "next/headers";
 import { inngest } from "~/inngest/client";
 import { revalidatePath } from "next/cache";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 
 
 
@@ -20,7 +22,7 @@ export interface GenerateRequest {
 }
 
 
-export default async function queueSong(generateRequest: GenerateRequest) {
+export async function queueSong(generateRequest: GenerateRequest) {
     try {
         // Prevent unauthenticated users from accessing dashboard
         const session = await auth.api.getSession({   // Check db to see if user is authenticated from browser headers
@@ -63,4 +65,24 @@ export default async function queueSong(generateRequest: GenerateRequest) {
         redirect("/auth/sign-in")                   // Redirect to sign in if session expired
     }
 
+}
+
+export async function getPresignedURL(s3Key: string ) {
+    
+    const s3Client =  new S3Client({
+        region: process.env.AWS_REGION,
+        credentials: {
+            accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!
+        }
+    })
+
+    const command = new GetObjectCommand({
+        Bucket: process.env.S3_BUCKET,
+        Key: s3Key
+    })
+
+    const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+    console.log('Generated presigned URL:', presignedUrl);
+    return presignedUrl;
 }

@@ -12,7 +12,7 @@ export const env = createEnv({
       .enum(["development", "test", "production"])
       .default("development"),
     AWS_ACCESS_KEY_ID: z.string(),
-    AWS_SECRET_ACCESS_KEY_ID: z.string(),
+    AWS_SECRET_ACCESS_KEY: z.string(),
     S3_BUCKET: z.string(),
     AWS_REGION: z.string(),
     MODAL_KEY: z.string(),
@@ -41,7 +41,7 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
-    AWS_SECRET_ACCESS_KEY_ID: process.env.AWS_SECRET_ACCESS_KEY_ID,
+    AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
     S3_BUCKET: process.env.S3_BUCKET,
     AWS_REGION: process.env.AWS_REGION,
     MODAL_KEY: process.env.MODAL_KEY,

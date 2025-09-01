@@ -9,7 +9,7 @@ import { Switch } from "../ui/switch";
 import { toast } from "sonner";
 import { Input } from "~/components/ui/input";
 import type { GenerateRequest } from "~/actions/generation";
-import queueSong from "~/actions/generation";
+import { queueSong } from "~/actions/generation";
 import { set } from "better-auth";
 
 const inspirationTags = [
