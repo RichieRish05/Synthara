@@ -9,6 +9,7 @@ import { getPlayURL } from "~/actions/generation"
 import { toggleTrackPublishedState, renameSong } from "~/actions/publishing"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import RenameDialog from "./rename-dialog"
+import { useRouter } from "next/navigation"
 
 
 export interface Track {
@@ -25,13 +26,11 @@ export interface Track {
 
 export default function TrackList({tracks} : {tracks: Track[]} ) {
     const [searchQuery, setSearchQuery] = useState<string>("")
-    const [refreshing, isRefreshing] = useState<boolean>(false)
+    const [refreshing, setIsRefreshing] = useState<boolean>(false)
     const [loadingTrackId, setLoadingTrackId] = useState<string | null>(null)
     const [trackToRename, setTrackToRename] = useState<Track | null>(null);  
 
-    const handleRefresh = (e: React.MouseEvent) => {
-        return 
-    }
+    const router = useRouter()
     let filteredTracks = tracks
     console.log('All tracks:', tracks)
     console.log('Track thumbnails:', tracks.map(track => ({ title: track.title, thumbnailURL: track.thumbnailURL })))
@@ -48,11 +47,14 @@ export default function TrackList({tracks} : {tracks: Track[]} ) {
         const playURl = await getPlayURL(track.id)
         console.log(playURl)
         setLoadingTrackId(null)
-
-
     }
 
-
+    const handleRefresh = async () => {
+        setIsRefreshing(true) 
+        router.refresh()
+        setTimeout(() => setIsRefreshing(false), 1000) 
+    }
+   
     return (
         <div className="flex flex-1 flex-col overflow-y-scroll">
             <div className="flex-1 p-6">

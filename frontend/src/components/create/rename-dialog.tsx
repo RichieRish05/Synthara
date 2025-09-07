@@ -49,13 +49,13 @@ export default function RenameDialog({track, onRename, onClose } : RenameDialogP
             <Label htmlFor="title" className="text-md p-2">Title</Label>
             <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="p-5"/>
             <DialogFooter className="sm:justify-start mt-5">
-            <DialogClose> 
+            <DialogClose asChild> 
                 <Button type="button" variant="secondary">
                 Cancel
                 </Button>
             </DialogClose>
             <Button type="submit">
-                Save
+                Save Changes
             </Button> 
             </DialogFooter>
         </form>
