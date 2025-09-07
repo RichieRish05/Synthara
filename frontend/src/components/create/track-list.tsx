@@ -1,15 +1,20 @@
 "use client"
-import { RefreshCcw, Search, XCircle } from "lucide-react"
+import { Download, MoreHorizontalIcon, RefreshCcw, Search, XCircle } from "lucide-react"
 import TrackListFetcher from "./track-list-fetcher"
 import { Input } from "../ui/input"
-import { useState   } from "react"
+import { useState } from "react"
 import { Button  } from "../ui/button"
-import { Loader2, Music} from "lucide-react"
+import { Loader2, Music, Play, Pencil} from "lucide-react"
+import { getPlayURL } from "~/actions/generation"
+import { toggleTrackPublishedState, renameSong } from "~/actions/publishing"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
+import RenameDialog from "./rename-dialog"
+
 
 export interface Track {
     id: string, 
     title: string,
-    createdAt: Date,
+    createdAt: Date, 
     thumbnailURL: string,
     playURL: string | null, 
     status: "processing" | "processed" | "failed" | "queued",
@@ -21,6 +26,8 @@ export interface Track {
 export default function TrackList({tracks} : {tracks: Track[]} ) {
     const [searchQuery, setSearchQuery] = useState<string>("")
     const [refreshing, isRefreshing] = useState<boolean>(false)
+    const [loadingTrackId, setLoadingTrackId] = useState<string | null>(null)
+    const [trackToRename, setTrackToRename] = useState<Track | null>(null);  
 
     const handleRefresh = (e: React.MouseEvent) => {
         return 
@@ -34,10 +41,22 @@ export default function TrackList({tracks} : {tracks: Track[]} ) {
     }
     console.log('Filtered tracks:', filteredTracks)
 
+    
+    const handleTrackSelect = async (track: Track) => {
+        if (loadingTrackId) return
+        setLoadingTrackId(track.id)
+        const playURl = await getPlayURL(track.id)
+        console.log(playURl)
+        setLoadingTrackId(null)
+
+
+    }
+
+
     return (
         <div className="flex flex-1 flex-col overflow-y-scroll">
             <div className="flex-1 p-6">
-                <div className="mb-4 flex items-center justify-between gap-4">
+                <div className="mb-4 flex items-center justify-between gap-4f">
                     <div className="relative max-w-md flex-1">
                         <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"/>   
                         <Input 
@@ -97,10 +116,10 @@ export default function TrackList({tracks} : {tracks: Track[]} ) {
                             default: 
                             return (
                             <div key={track.id} 
-                            className="hover:bg-muted-50 flex cursor-pointer items-center gap-4 rounded-lg p-3 transition-colors"
-                            onClick={() => {}}
+                            className="hover:bg-gray-100 group flex cursor-pointer items-center gap-4 rounded-lg p-3 transition-colors"
+                            onClick={() => handleTrackSelect(track)}
                             >
-                                <div className="group relative h-12 w-12 rounded-md overflow-hidden flex-shrink-0">
+                                <div className="relative h-12 w-12 rounded-md overflow-hidden flex-shrink-0">
                                     {track.thumbnailURL ? 
                                     <img 
                                         src={track.thumbnailURL} 
@@ -110,12 +129,65 @@ export default function TrackList({tracks} : {tracks: Track[]} ) {
                                     <div className="bg-muted flex h-full w-full rounded-md items-center justify-center">
                                         <Music className="text-muted-foreground h-6 w-6"/>
                                     </div>}
+                                     <div className="absolute inset-0 flex items-center justify-center bg-black/20  opacity-0 transition-opacity group-hover:opacity-100">
+                                        {loadingTrackId === track.id ? <Loader2 className="animate-spin text-white"/> : <Play className="text-white"/>}
+                                    </div>
                                 </div>
 
                                 <div className="min-w-0 flex-1">
                                     <h3 className="text-muted-foreground truncate text-sm font-md">{track.title}</h3>
                                     <p className="text-muted-foreground text-xs truncate">{track.createdByUserName}</p>
                                 </div>   
+                                
+
+                                {/*Actions*/}
+                                <div className="flex items-center gap-2">
+                                    <Button 
+                                    className={`cursor-pointer ${track.published ? 'border-red-200' : ''}`} 
+                                    variant="outline" 
+                                    size="sm" 
+                                    onClick={async (e) => {
+                                        e.stopPropagation()
+                                        await toggleTrackPublishedState(track.id, track.published)
+                                    }}>
+                                        {track.published ? "Unpublish" : "Publish"}
+                                    </Button>
+
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant='ghost' size='icon'>
+                                                <MoreHorizontalIcon/>
+                                            </Button>
+                                        </DropdownMenuTrigger>
+            
+                                        <DropdownMenuContent align="end" className="w-30">
+                                            <DropdownMenuItem 
+                                            onClick={async (e) => {
+                                                e.stopPropagation()
+                                                const presignedURL = await getPlayURL(track.id)
+                                                window.open(presignedURL, "_blank")
+                                            }}
+                                            > 
+                                                <Download  className="mr-2"/>
+                                                Download
+                   
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem 
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                setTrackToRename(track)
+                                            }}
+                                            > 
+                                                <Pencil className="mr-2"/>
+                                                Rename
+                   
+                                            </DropdownMenuItem>
+
+                                        </DropdownMenuContent>
+
+                                    </DropdownMenu>
+
+                                </div>
 
 
                             </div>)
@@ -130,7 +202,8 @@ export default function TrackList({tracks} : {tracks: Track[]} ) {
 
             </div>
             </div> 
-
+                 
+            {trackToRename ? <RenameDialog track={trackToRename} onClose={()=> setTrackToRename(null)} onRename={renameSong}/> : ""}
         </div>
     )
      

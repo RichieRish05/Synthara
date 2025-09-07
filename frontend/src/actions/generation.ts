@@ -86,3 +86,44 @@ export async function getPresignedURL(s3Key: string ) {
     console.log('Generated presigned URL:', presignedUrl);
     return presignedUrl;
 }
+
+
+export async function getPlayURL(trackId: string) {
+    const session = await auth.api.getSession({   // Check db to see if user is authenticated from browser headers
+        headers: await headers()                    // Send current cookies over 
+    })
+
+    if (!session) {
+        redirect("/auth/sign-in")                   // Redirect to sign in
+    }
+
+    const song = await db.song.findUniqueOrThrow({
+        where : {
+            id: trackId,                                             // User is playing a specific track
+            OR: [{userId: session.user.id}, {published: true  }],    // Either the user owns the song or is accessing a public song
+            s3Key: {
+                not: null                                            // Need a valid s3 key
+            }   
+        },
+        select: {
+            s3Key: true
+        }
+    })   
+
+    await db.song.update({
+        where: {
+            id: trackId
+        },
+        data: {
+            listenCount: {
+                increment: 1
+            }  
+        }
+    })
+      
+
+
+
+    const presignedUrl = await getPresignedURL(song.s3Key!)
+    return presignedUrl;
+}

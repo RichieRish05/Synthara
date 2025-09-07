@@ -34,7 +34,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <UserButton variant="outline"/>
+        <UserButton variant="outline" size="lg"/>
       </SidebarFooter>
     </Sidebar>
   )
