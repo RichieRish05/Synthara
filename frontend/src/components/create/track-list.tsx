@@ -1,15 +1,16 @@
 "use client"
-import { Download, MoreHorizontalIcon, RefreshCcw, Search, XCircle } from "lucide-react"
+import { Trash, Download, MoreHorizontalIcon, RefreshCcw, Search, XCircle } from "lucide-react"
 import TrackListFetcher from "./track-list-fetcher"
 import { Input } from "../ui/input"
 import { useState } from "react"
 import { Button  } from "../ui/button"
 import { Loader2, Music, Play, Pencil} from "lucide-react"
 import { getPlayURL } from "~/actions/generation"
-import { toggleTrackPublishedState, renameSong } from "~/actions/publishing"
+import { toggleTrackPublishedState, renameSong, deleteSong } from "~/actions/publishing"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import RenameDialog from "./rename-dialog"
 import { useRouter } from "next/navigation"
+import { usePlayerStore } from "~/stores/use-player-store" 
 
 
 export interface Track {
@@ -29,6 +30,8 @@ export default function TrackList({tracks} : {tracks: Track[]} ) {
     const [refreshing, setIsRefreshing] = useState<boolean>(false)
     const [loadingTrackId, setLoadingTrackId] = useState<string | null>(null)
     const [trackToRename, setTrackToRename] = useState<Track | null>(null);  
+    const [trackToDelete, setTrackToDelete] = useState<Track | null>(null);  
+    const { track, setTrack } = usePlayerStore()
 
     const router = useRouter()
     let filteredTracks = tracks
@@ -47,6 +50,14 @@ export default function TrackList({tracks} : {tracks: Track[]} ) {
         const playURl = await getPlayURL(track.id)
         console.log(playURl)
         setLoadingTrackId(null)
+
+        setTrack({
+            id: track.id,
+            url: playURl,
+            artwork: track.thumbnailURL,
+            title: track.title,
+            createdByUsername: track.createdByUserName
+        })
     }
 
     const handleRefresh = async () => {
@@ -118,7 +129,8 @@ export default function TrackList({tracks} : {tracks: Track[]} ) {
                             default: 
                             return (
                             <div key={track.id} 
-                            className="hover:bg-gray-100 group flex cursor-pointer items-center gap-4 rounded-lg p-3 transition-colors"
+                            className={`group flex cursor-pointer items-center gap-4 rounded-lg p-3 transition-colors 
+                            ${trackToDelete?.id === track.id ? "pointer-events-none opacity-50" : "hover:bg-gray-100"}`}
                             onClick={() => handleTrackSelect(track)}
                             >
                                 <div className="relative h-12 w-12 rounded-md overflow-hidden flex-shrink-0">
@@ -182,6 +194,18 @@ export default function TrackList({tracks} : {tracks: Track[]} ) {
                                             > 
                                                 <Pencil className="mr-2"/>
                                                 Rename
+                   
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem 
+                                            onClick={async (e) => {
+                                                e.stopPropagation()
+                                                setTrackToDelete(track)
+                                                await deleteSong(track.id)
+                                                // setTrackToDelete(null)
+                                            }}
+                                            > 
+                                                <Trash className="mr-2"/>
+                                                Delete
                    
                                             </DropdownMenuItem>
 

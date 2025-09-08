@@ -54,3 +54,24 @@ export async function renameSong(trackId: string, newTitle: string) {
    
     revalidatePath('/create')
 } 
+
+
+export async function deleteSong(trackId: string) {
+
+    // Prevent unauthenticated users from accessing dashboard
+    const session = await auth.api.getSession({   // Check db to see if user is authenticated from browser headers
+        headers: await headers()                    // Send current cookies over 
+    })
+    
+    if (!session) {
+        redirect("/auth/sign-in")                   // Redirect to sign in
+    }
+    
+    await db.song.delete({
+        where: {
+            id: trackId
+        }
+    })
+   
+    revalidatePath('/create')
+}

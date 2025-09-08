@@ -4,7 +4,6 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Providers } from "~/components/providers";
 import { Toaster } from "sonner"; 
-import { Sidebar } from "lucide-react";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "~/components/ui/sidebar";  
 import App from "next/app";
 import { AppSidebar } from "~/components/sidebar/app-sidebar";
@@ -15,6 +14,10 @@ import {
   BreadcrumbItem, 
 } from "~/components/ui/breadcrumb";
 import BreadcrumbPageClient from "~/components/sidebar/breadcrumb-page-client";
+import SoundBar from "~/components/soundbar";
+
+
+
 
 export const metadata: Metadata = {
   title: "Music Generator",
@@ -50,10 +53,9 @@ export default function RootLayout({
                 </Breadcrumb>
                 </div>
               </header>
-
               <main className="flex-1 overflow-y-auto">{children}</main>
+              <SoundBar/>
             </SidebarInset>
-
           </SidebarProvider>
         </Providers>
         <Toaster />
