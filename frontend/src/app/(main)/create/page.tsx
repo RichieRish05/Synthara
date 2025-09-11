@@ -22,7 +22,7 @@ export default async function CreatePage() {
 
   
   return ( 
-    <div className="flex h-full flex-col lg:flex-row  ">
+    <div className="flex h-screen flex-col lg:flex-row">
       <SongPanel/>
       <Suspense fallback={
       <div className="flex h-full w-full items-center justify-center">

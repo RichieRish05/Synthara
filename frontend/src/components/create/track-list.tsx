@@ -67,7 +67,7 @@ export default function TrackList({tracks} : {tracks: Track[]} ) {
     }
    
     return (
-        <div className="flex flex-1 flex-col overflow-y-scroll">
+        <div className="flex flex-1 flex-col overflow-y-scroll min-h-0">
             <div className="flex-1 p-6">
                 <div className="mb-4 flex items-center justify-between gap-4f">
                     <div className="relative max-w-md flex-1">

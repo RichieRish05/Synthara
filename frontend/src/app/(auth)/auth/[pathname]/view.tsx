@@ -20,7 +20,7 @@ export function AuthView({ pathname }: { pathname: string }) {
           Back
         </Button>
       )}
-      <AuthCard pathname={pathname} />
+      <AuthCard className="w-full max-w-md" pathname={pathname} />
     </main>
   );
 }

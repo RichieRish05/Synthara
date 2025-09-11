@@ -18,5 +18,14 @@ export const auth = betterAuth({
     emailAndPassword: {    
         enabled: true
     },
-    baseURL: process.env.BETTER_AUTH_URL
+    baseURL: process.env.BETTER_AUTH_URL,
+    // Add Vercel-specific configuration
+    trustedOrigins: [
+        process.env.BETTER_AUTH_URL!,
+        process.env.NEXT_PUBLIC_BETTER_AUTH_URL!
+    ],
+    // Ensure proper response handling for Vercel
+    logger: {
+        level: process.env.NODE_ENV === "production" ? "error" : "info"
+    }
 });

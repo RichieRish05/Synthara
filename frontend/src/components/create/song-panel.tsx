@@ -4,7 +4,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "~/components/ui/tabs";
 import { useState } from "react";
 import { Textarea } from "~/components/ui/textarea";
 import { Button } from "../ui/button";
-import { Loader2, Music, Plus } from "lucide-react";
+import { Loader2, Music, Plus, ChevronUp, ChevronDown } from "lucide-react";
 import { Switch } from "../ui/switch";
 import { toast } from "sonner";
 import { Input } from "~/components/ui/input";
@@ -48,6 +48,7 @@ export default function SongPanel() {
     const [styles, setStyles] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
     const [title, setTitle] = useState<string>("");
+    const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
 
     const handleInspoButtonClick = (tag: string) => {
         if (tag) {
@@ -121,7 +122,19 @@ export default function SongPanel() {
 
     return (
         <div className="bg-muted/30 flex w-full flex-col border-r lg:w-80">
-            <div className="flex-1 overflow-y-auto p-4"> 
+            {/* Mobile collapse button */}
+            <div className="flex lg:hidden items-center justify-between p-4 border-b">
+                <h2 className="font-semibold">Create Song</h2>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsCollapsed(!isCollapsed)}
+                >
+                    {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+                </Button>
+            </div>
+            
+            <div className={`flex-1 overflow-y-auto p-4 lg:block ${isCollapsed ? 'hidden' : 'block'}`}> 
                 <Tabs value={tab} onValueChange={(value) => setTab(value as "simple" || "custom ") }>
                     <TabsList className="w-full">
                         <TabsTrigger value="simple">Simple</TabsTrigger>
