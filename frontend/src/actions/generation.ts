@@ -34,19 +34,19 @@ export async function queueSong(generateRequest: GenerateRequest) {
         }
 
         // Clean the title string
-        generateRequest.title = generateRequest.title?.trim() || "Untitled"
+        generateRequest.title = generateRequest.title?.trim() ?? "Untitled"
         generateRequest.title = generateRequest.title.charAt(0).toUpperCase() + generateRequest.title.slice(1)
  
         const song = await db.song.create({
             data: {
                 userId: session.user.id,
                 title: generateRequest.title,
-                prompt: generateRequest.prompt || null,
-                lyrics: generateRequest.lyrics || null,
-                describedLyrics: generateRequest.describedLyrics || null,
-                instrumental: generateRequest.instrumental || false,
-                audioDuration: generateRequest.audioDuration || 120,
-                fullDescribedSong: generateRequest.fullDescribedSong || null,
+                prompt: generateRequest.prompt ?? null,
+                lyrics: generateRequest.lyrics ?? null,
+                describedLyrics: generateRequest.describedLyrics ?? null,
+                instrumental: generateRequest.instrumental ?? false,
+                audioDuration: generateRequest.audioDuration ?? 120,
+                fullDescribedSong: generateRequest.fullDescribedSong ?? null,
                 status: "queued"
             } 
         })
