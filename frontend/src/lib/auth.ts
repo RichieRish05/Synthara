@@ -2,6 +2,13 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { db } from "../server/db";
 
+// Log environment variables
+console.log('=== AUTH CONFIG DEBUG ===');
+console.log('BETTER_AUTH_URL:', process.env.BETTER_AUTH_URL);
+console.log('BETTER_AUTH_SECRET:', process.env.BETTER_AUTH_SECRET ? 'SET' : 'NOT SET');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('========================');
+
 // If your Prisma file is located elsewhere, you can change the path
 
 export const auth = betterAuth({
