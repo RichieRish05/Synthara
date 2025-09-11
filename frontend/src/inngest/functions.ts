@@ -2,6 +2,7 @@ import { inngest } from "./client";
 import { db } from "../server/db";
 import { guid, number } from "better-auth";
 
+{/* 
 export const helloWorld = inngest.createFunction(
   { id: "hello-world" },
   { event: "test/hello.world" },
@@ -10,6 +11,8 @@ export const helloWorld = inngest.createFunction(
     return { message: `Hello ${event.data.email}!` };
   },
 );
+*/}
+
 
 export const generateSong = inngest.createFunction(
     { id: "generate-song", 
@@ -17,7 +20,7 @@ export const generateSong = inngest.createFunction(
       onFailure: async({event, error}) => { // On failure, set the song status to failed
         await db.song.update({
           where: { 
-            id: event?.data?.event?.data?.songId
+            id: (event?.data?.event?.data as { songId: string }).songId,
           },
           data: { status: "failed" }
         })  
@@ -130,9 +133,16 @@ export const generateSong = inngest.createFunction(
         },
       });
 
+
     // Update the song with the result
     await step.run("update-song-result", async () => {
-        const data = res.ok ? await res.json() : null; 
+         const data = res.ok
+          ? ((await res.json()) as {
+              s3_key: string;
+              s3_thumbnail_key: string;
+              categories: string[];
+            })
+          : null;
 
         await db.song.update({
           where: { id: songId },
@@ -148,7 +158,7 @@ export const generateSong = inngest.createFunction(
             where: { id: songId },
             data: {
               categories: {
-                connectOrCreate: data.categories.map((category: string) => ({
+                connectOrCreate: data.categories.map((category) => ({
                   where: { name: category },
                   create: { name: category }
                 }))
