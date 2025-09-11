@@ -41,7 +41,7 @@ export async function queueSong(generateRequest: GenerateRequest) {
             data: {
                 userId: session.user.id,
                 title: generateRequest.title,
-                prompt: generateRequest.prompt ?? null,
+                prompt: generateRequest.prompt?? null,
                 lyrics: generateRequest.lyrics ?? null,
                 describedLyrics: generateRequest.describedLyrics ?? null,
                 instrumental: generateRequest.instrumental ?? false,

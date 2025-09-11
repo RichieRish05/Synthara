@@ -10,6 +10,6 @@ export const auth = betterAuth({
     }),
     emailAndPassword: {    
         enabled: true
-    }
+    },
+    baseURL: process.env.BETTER_AUTH_URL
 });
-
